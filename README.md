@@ -22,3 +22,21 @@ Il programma è stato testato su macchina Linux e Windows, le richieste ogni 5 m
 Se vi piace la repository lasciate un **Star** o un **fork** :star\_struck:.
 
 Per qualsiasi problema aprite un **Issue** :raised\_hands:.
+
+
+Changelog 📝
+------------
+
+### Versione 1.1.0 - 13 Aprile 2023
+
+#### Cambiamenti
+
+*   💡 Sistemato il log degli errori della promessa per renderlo più chiaro e leggibile
+*   🛠 Spostamento della funzione LogOut di classeviva per migliorare l'organizzazione del codice
+*   🚀 Rinnovato il controllo della condizione dataToSend per rendere più fluido il codice
+*   📝 Aggiunta di nuovi commenti per facilitare la comprensione del codice
+
+#### Nuove Funzionalità
+
+*   🕒 Cambiato sistema del tempo per risolvere problemi nel calcolo degli orari su Linux, in particolare Ubuntu 20.04
+
