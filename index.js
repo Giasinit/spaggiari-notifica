@@ -97,7 +97,18 @@ const run = async () => {
                     const data = cellArray[10].Data[0];
                     const cosacompiti = data && data._ ? data._.replace(/\s+/g, ' ') : '';
                     const inserimento_ora = cellArray[6].Data[0]._;
-
+                    
+                    // Vari calcoli per l'orario
+                    const now = Date.now();     // Qui prende il timestamp in millisecondi del preciso istante
+                    let timeinserimento = Date.parse(inserimento_ora); // Prende il timestamp in millisecondi del preciso istate dell'inserimento
+                    const differenz = (now - timeinserimento)/1000; // la differenza tra gli orari dividendo per mille 
+                    const minutipercontrollo = minuti_controllo*60; // prodotto tra minuti e 60 visto che il timestamp si basa così
+                    var timestampInMinuti = Math.round((now - timeinserimento) / 60000); // il tempo passato in minuti
+                    
+                    //console.log(now+" | "+timeinserimento+" dif: "+differenz+" passato: "+timestampInMinuti);
+                    
+                    /* Vecchio codice V. 1.0
+                    - Rimosso per problemi con Linux/Ubuntu 20.04 -> a quanto pare non sa usare i numeri.. eh vabbè.. succede :D
                     // converti la stringa in un oggetto Date
                     const data_inserimento = new Date(inserimento_ora);
 
@@ -106,8 +117,13 @@ const run = async () => {
 
                     // converti i millisecondi in minuti
                     const minuti_trascorsi = Math.floor(differenza_in_millisecondi / 60000);
+                    //console.log("minuti_trascorsi: "+minuti_trascorsi+"\nminuti_controllo: "+minuti_controllo);
+                    */
 
-                    if (minuti_trascorsi < minuti_controllo) {
+                    // Doppia condizione per evitare problemi
+                    // Il primo usa il timestamp UNIX
+                    // Il secondo usa il varie formule e controllare se effettivamente i minuti coincidono
+                    if (differenz < minutipercontrollo && timestampInMinuti < minuti_controllo) {
                         let lora = 'non ricordo l\'orario'; // Valore predefinito, speriamo sti professori sappiano mettere gli orari :p
 
                         if (ora === '08:00:00') lora = '1';
@@ -121,12 +137,12 @@ const run = async () => {
                         let messaggio = '';
 
                         if (compiti === 'compiti') {
-                            messaggio = `Hai compiti per il *${giorn}* in *${lora}* ora, ovvero *${materia}* con *${prof}* che ti ha dato *${cosacompiti}* e li ha inseriti *${minuti_trascorsi} minuti fa*`;
+                            messaggio = `Hai compiti per il *${giorn}* in *${lora}* ora, ovvero *${materia}* con *${prof}* che ti ha dato *${cosacompiti}* e li ha inseriti *${timestampInMinuti} minuti fa*`;
                         } else if (compiti === 'nota') {
                             if (lora === 'ah') {
-                                messaggio = `Beh ti devo dire che hai un\'annotazione il *${giorn}* per *${cosacompiti}* con *${prof}* e l\'ha inserito *${minuti_trascorsi} minuti fa*`;
+                                messaggio = `Beh ti devo dire che hai un\'annotazione il *${giorn}* per *${cosacompiti}* con *${prof}* e l\'ha inserito *${timestampInMinuti} minuti fa*`;
                             } else {
-                                messaggio = `In ogni caso il *${giorn}* in *${lora}* ora hai *${cosacompiti}* con *${prof}* e l\'ha inserito *${minuti_trascorsi} minuti fa*`;
+                                messaggio = `In ogni caso il *${giorn}* in *${lora}* ora hai *${cosacompiti}* con *${prof}* e l\'ha inserito *${timestampInMinuti} minuti fa*`;
                             }
                         }
                         
@@ -134,19 +150,36 @@ const run = async () => {
                     }
                 }
 
+                /* Vecchio codice V. 1.0
+                - Rimosso per rendere il codice più fluido
                 if (dataToSend != '') {
-                    // Se cè qualcosa da inviare, chiama la funzione per farlo XD
+                    
                     console.log('Messaggi da inviare:', dataToSend);
                     inviaMessaggio(dataToSend, perme);
+                }*/
+                if (dataToSend.length > 0) {
+                    // Se cè qualcosa da inviare, chiama la funzione per farlo XD
+                    console.log('Messaggi da inviare:', dataToSend);
+                    inviaMessaggio(dataToSend.join('\n'), perme);
+                } else {
+                    console.log("Nessuna novità trovata");
                 }
-            })
+
+                // chiudiamo la sessione di classeviva, perché sennò arrivano a casa :)
+                classeviva.logout(); // Spostato dalla versione 1.0 perchè essendo in asincrono, faceva logout prima di controllare.. e quindi è meglio fare in questo modo :)
+                console.log("Logout Effettuato");
+            });
         })
+        /* Vecchio codice V. 1.0
+        - Rimosso per prendere le promesse in modo corretto XD
         .catch((err) => {
             console.error(err); // Speriamo non accada nulla di speciale LOL
+        });*/
+        .catch((error) => {
+            console.log("Errore nella promessa:", error);
         });
 
-  // chiudiamo la sessione di classeviva, perché sennò arrivano a casa :)
-  await classeviva.logout();
+
 };
 
 // eseguiamo la funzione run una volta all'avvio
